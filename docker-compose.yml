@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ph_kangaroo
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
+    platform: linux/x86_64
+    ports:
+      - 3306:3306
+    restart: always
+    volumes:
+      - mysql-volume:/var/lib/mysql
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - 6379:6379
+    restart: always
+
+  mycat:
+    image: williamwxl/mycat
+    container_name: mycat
+    depends_on:
+      - mysql
+    ports:
+      - 8066:8066
+      - 9066:9066
+    restart: always
+    volumes:
+      - ./mycat/logs/:/opt/mycat/logs/
+      - ./mycat/conf/schema.xml:/opt/mycat/conf/schema.xml
+      - ./mycat/conf/server.xml:/opt/mycat/conf/server.xml
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - 8080:8080
+    restart: always
+
+volumes:
+  mysql-volume:
